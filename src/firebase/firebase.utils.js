@@ -9,7 +9,31 @@ const config = {
     storageBucket: "clothing-store-b7336.appspot.com",
     messagingSenderId: "343772512890",
     appId: "1:343772512890:web:502c7ac6008d7d6baff1c3"
-  }
+}
+
+export const createUserProfileDocument = async(userAuth, additionalData) => {
+    if(!userAuth) return ;
+    const userRef = firestore.doc(`users/${userAuth.uid}`)
+    const snapShot = await userRef.get()
+    
+    if(!snapShot.exists){
+        const {displayName, email} = userAuth
+        const createdAt = new Date()
+
+        try{
+            await userRef.set({
+                displayName,
+                email,
+                createdAt,
+                ...additionalData
+            })
+        }catch(error){
+            console.log('error creating user', error.message)
+        }
+    }
+
+    return userRef
+}
 
 firebase.initializeApp(config)
 
